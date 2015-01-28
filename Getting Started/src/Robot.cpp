@@ -22,6 +22,12 @@ private:
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
+
+		SmartDashboard::init();
+		SmartDashboard::PutString("init","init has run");
+		CameraServer::GetInstance()->SetQuality(50);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
+		SmartDashboard::PutBoolean("isAutocaptureEnabled",CameraServer::GetInstance()->IsAutoCaptureStarted());
 	}
 
 	void AutonomousInit()
