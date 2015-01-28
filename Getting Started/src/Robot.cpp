@@ -4,16 +4,16 @@ class Robot: public IterativeRobot
 {
 
 	RobotDrive myRobot; // robot drive system
-	Joystick stick; // only joystick
+	Joystick leftStick; // only joystick
+	Joystick rightStick; //
 	LiveWindow *lw;
-	int autoLoopCounter;
 
 public:
 	Robot() :
 		myRobot(0, 1),	// these must be initialized in the same order
-		stick(0),		// as they are declared above.
-		lw(NULL),
-		autoLoopCounter(0)
+		leftStick(0),		// as they are declared above.
+		rightStick(1),
+		lw(NULL)
 	{
 		myRobot.SetExpiration(0.1);
 	}
@@ -25,9 +25,6 @@ private:
 
 		SmartDashboard::init();
 		SmartDashboard::PutString("init","init has run");
-		CameraServer::GetInstance()->SetQuality(50);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
-		SmartDashboard::PutBoolean("isAutocaptureEnabled",CameraServer::GetInstance()->IsAutoCaptureStarted());
 	}
 
 	void AutonomousInit()
@@ -40,12 +37,46 @@ private:
 
 	void TeleopInit()
 	{
-
 	}
 
 	void TeleopPeriodic()
 	{
-		//myRobot.TankDrive(); // drive with arcade style (use right stick)
+		/* ---------- SENSOR ---------- */
+
+		/* ---------- LIFTING ---------- */
+
+		/* ---------- DRIVE ---------- */
+
+		// variables
+		float power = 0;
+		double leftOut = 0;
+		double rightOut = 0;
+		double leftIn = leftStick.GetY();
+		double rightIn = rightStick.GetY();
+
+		// Power
+		if (leftStick.GetRawButton(2)){						// Set Power to 65% if button 2 is pressed on L stick
+			power = 0.65;
+		}
+		else power = 1;
+
+		// Output calculation
+		leftOut = -leftIn*power;
+		rightOut = -rightIn*power;
+
+		// Deadzones
+		if (leftOut < 0.08){								// L Stick
+			leftOut = 0;
+		}
+		if (rightOut < 0.08){								// R Stick
+			leftOut = 0;
+		}
+
+		// Smart dashboard
+		SmartDashboard::PutNumber("LeftOut", leftOut);		// Print leftOut
+		SmartDashboard::PutNumber("RightOut", rightOut);	// Print rightOut
+
+		myRobot.TankDrive(leftOut,rightOut); 				// Drive with tank controls
 	}
 
 	void TestPeriodic()
