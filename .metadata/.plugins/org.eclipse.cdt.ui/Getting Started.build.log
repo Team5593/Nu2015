@@ -1,8 +1,0 @@
-14:07:33 **** Rebuild of configuration Debug for project Getting Started ****
-Info: Internal Builder is used for build
-arm-frc-linux-gnueabi-g++ -std=c++1y "-IC:\\Users\\Liam/wpilib/cpp/current/include" "-IC:\\Users\\Liam\\FRC_Workspace_Main\\Getting Started\\src" -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\Robot.o" "..\\src\\Robot.cpp" 
-arm-frc-linux-gnueabi-g++ "-LC:\\Users\\Liam/wpilib/cpp/current/lib" -Wl,-rpath,/opt/GenICam_v2_3/bin/Linux_armv7-a -o FRCUserProgram "src\\Robot.o" -lwpi 
-d:/frc/bin/../lib/gcc/arm-frc-linux-gnueabi/4.9.1/../../../../arm-frc-linux-gnueabi/bin/ld.exe: warning: libstdc++.so.6, needed by C:\Users\Liam/wpilib/cpp/current/lib\libFRC_NetworkCommunication.so.1.5.0, not found (try using -rpath or -rpath-link)
-
-14:07:35 Build Finished (took 2s.573ms)
-
