@@ -12,6 +12,7 @@ class Robot: public IterativeRobot
 	Encoder lift_encoder;
 	bool autoLift = 0;
 	double setHeight = 0;
+	double rotsPerLevel = 1;
 
 
 
@@ -139,15 +140,15 @@ private:
 
 
 		if (autoLift == 1 && liftInput != 0){
-			if (EncoderRot != (setHeight - 1)){
-				if (EncoderRot < (setHeight - 1)){
+			if (EncoderRot != (setHeight - 1) * rotsPerLevel){
+				if (EncoderRot < (setHeight - 1) * rotsPerLevel){
 					m_liftMotor.Set(1);
 				}
-				else if (EncoderRot > (setHeight - 1)){
+				else if (EncoderRot > (setHeight - 1) * rotsPerLevel){
 					m_liftMotor.Set(-1);
 				}
 			}
-			if (EncoderRot == (setHeight - 1)){
+			if (EncoderRot == (setHeight - 1) * rotsPerLevel){
 				autoLift = 0;
 				m_liftMotor.Set(0);
 			}
@@ -163,6 +164,8 @@ private:
 		SmartDashboard::PutNumber("EncoderRotations", EncoderRot);		//Print encoder distance
 		SmartDashboard::PutNumber("autoLift", autoLift);				//Print autoLift
 		SmartDashboard::PutNumber("setHeight", setHeight);				//Print setHeight
+		SmartDashboard::PutNumber("rotPerLevel", rotsPerLevel);			//Print rotsPerLevel
+
 	}
 
 	void TestPeriodic()
