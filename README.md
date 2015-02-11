@@ -11,5 +11,6 @@ Motor info:
 - Pwm 3: Grab motor.
 
 Controller info:
+- Image: <a target="_blank" href="http://team358.org/files/programming/ControlSystem2009-/XBoxControlMapping.jpg">Link Here</a>
 - Left Joystick: X = Axis 1, Y = Axis 2.
 - Right Joystick: X = Axis 4, Y = Axis 5.
