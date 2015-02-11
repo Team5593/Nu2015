@@ -10,6 +10,8 @@ class Robot: public IterativeRobot
 	Talon m_grabMotor;
 	LiveWindow *lw;
 	Encoder lift_encoder;
+	bool autoLift = 0;
+	double setHeight = 0;
 
 
 
@@ -59,6 +61,26 @@ private:
 		double leftIn 	= -Xcont.GetRawAxis(1);				// leftIn (left Input) is set to XboxController (Axis 5 right thumbstick)
 		double rightIn 	= -Xcont.GetRawAxis(5);				// rightIn (right Input) is set to XboxController (Axis 5 right thumbstick)
 		float speed 	= 1-(Xcont.GetRawAxis(3)/2);		// Speed is inverted, then set to XboxController (Axis 3 right trigger), then divided by 2
+		bool liftInput  = 0;
+		if (stick.GetRawButton(6)){
+			setHeight = 1;
+			autoLift = 1;
+		}
+		if (stick.GetRawButton(7)){
+			setHeight = 2;
+			autoLift = 1;
+		}
+		if (stick.GetRawButton(8)){
+			setHeight = 3;
+			autoLift = 1;
+		}
+		if (stick.GetRawButton(9)){
+			setHeight = 4;
+			autoLift = 1;
+		}
+		if (stick.GetRawButton(6)){
+			lift_encoder.Reset();
+		}
 
 		/* ---------- DEADZONES ---------- */				// Input below 0.08 (8%) is set to 0.00
 		if (leftIn 	< 0.08 && leftIn > -0.08){				// L Thumb-Stick
@@ -76,11 +98,15 @@ private:
 		myRobot.TankDrive(leftOut,rightOut); 				// Drive, accounts for speed.
 
 		/* ---------- LIFT OUTPUT ---------- */
-		if (stick.GetRawButton(3))
+		if (stick.GetRawButton(3)){
 			m_liftMotor.Set(1.0);
+			liftInput = 1;
+		}
 		else{
-			if (stick.GetRawButton(2))
+			if (stick.GetRawButton(2)){
 				m_liftMotor.Set(-1);
+				liftInput = 1;
+			}
 			else
 				m_liftMotor.Set(0);
 		};
@@ -109,6 +135,24 @@ private:
 		if (stick.GetRawButton(11))
 			lift_encoder.Reset();
 
+		/* ---------- AUTO LIFT --------- */
+
+
+		if (autoLift == 1 && liftInput != 0){
+			if (EncoderRot != (setHeight - 1)){
+				if (EncoderRot < (setHeight - 1)){
+					m_liftMotor.Set(1);
+				}
+				else if (EncoderRot > (setHeight - 1)){
+					m_liftMotor.Set(-1);
+				}
+			}
+			if (EncoderRot == (setHeight - 1)){
+				autoLift = 0;
+				m_liftMotor.Set(0);
+			}
+		}
+
 		/* ---------- SMART DASHBOARD ---------- */
 
 
@@ -117,6 +161,8 @@ private:
 		SmartDashboard::PutNumber("RightOut", rightOut);				// Print rightOut
 		SmartDashboard::PutNumber("EncoderDirection", EncoderDir);		// Print encoder direction
 		SmartDashboard::PutNumber("EncoderRotations", EncoderRot);		//Print encoder distance
+		SmartDashboard::PutNumber("autoLift", autoLift);				//Print autoLift
+		SmartDashboard::PutNumber("setHeight", setHeight);				//Print setHeight
 	}
 
 	void TestPeriodic()
@@ -126,5 +172,3 @@ private:
 };
 
 START_ROBOT_CLASS(Robot);
-
-//Test andrew's commit
