@@ -10,11 +10,6 @@ class Robot: public IterativeRobot
 	Talon m_grabMotor;
 	LiveWindow *lw;
 	Encoder lift_encoder;
-	bool autoLift = 0;
-	double setHeight = 0;
-	double rotPerLevel = 1;
-
-
 
 public:
 	Robot() :
@@ -62,24 +57,28 @@ private:
 		double leftIn 	= -Xcont.GetRawAxis(1);				// leftIn (left Input) is set to XboxController (Axis 5 right thumbstick)
 		double rightIn 	= -Xcont.GetRawAxis(5);				// rightIn (right Input) is set to XboxController (Axis 5 right thumbstick)
 		float speed 	= 1-(Xcont.GetRawAxis(3)/2);		// Speed is inverted, then set to XboxController (Axis 3 right trigger), then divided by 2
-		bool liftInput  = 0;
+		bool manualLift  = true;
+		int setHeight = 0;
+		double rotPerLevel = 1;
+
+
 		if (stick.GetRawButton(6)){
 			setHeight = 1;
-			autoLift = 1;
+			manualLift = false;
 		}
 		if (stick.GetRawButton(7)){
 			setHeight = 2;
-			autoLift = 1;
+			manualLift = false;
 		}
 		if (stick.GetRawButton(8)){
 			setHeight = 3;
-			autoLift = 1;
+			manualLift = false;
 		}
 		if (stick.GetRawButton(9)){
 			setHeight = 4;
-			autoLift = 1;
+			manualLift = false;
 		}
-		if (stick.GetRawButton(6)){
+		if (stick.GetRawButton(11)){
 			lift_encoder.Reset();
 		}
 
@@ -87,9 +86,11 @@ private:
 		if (leftIn 	< 0.08 && leftIn > -0.08){				// L Thumb-Stick
 			leftIn 	= 0;
 		}
+
 		if (rightIn < 0.08 && rightIn > -0.08){				// R Thumb-Stick
 			rightIn = 0;
 		}
+
 
 
 		/* ---------- DRIVE OUTPUT ---------- */
@@ -100,13 +101,13 @@ private:
 
 		/* ---------- LIFT OUTPUT ---------- */
 		if (stick.GetRawButton(3)){
-			m_liftMotor.Set(1.0);
-			liftInput = 1;
+			m_liftMotor.Set(1);
+			manualLift = true;
 		}
 		else{
 			if (stick.GetRawButton(2)){
 				m_liftMotor.Set(-1);
-				liftInput = 1;
+				manualLift = true;
 			}
 			else
 				m_liftMotor.Set(0);
@@ -126,35 +127,40 @@ private:
 		float EncoderDir;
 		double EncoderRot;
 
-		if(direction==1)
+		/*if(direction==1)
 			EncoderDir = 1;
 		else
 			EncoderDir = -1;
-
-		EncoderRot = lift_encoder.GetDistance()/500;
+		*/
+		EncoderRot = lift_encoder.GetDistance();
 
 		if (stick.GetRawButton(11))
 			lift_encoder.Reset();
 
 		/* ---------- AUTO LIFT --------- */
 
+		double heights[] = {1000.0,2000.0,3000.0,4000.0};
 
-		if (autoLift == 1 && liftInput != 0){
-			if (EncoderRot != (setHeight - 1) * rotPerLevel){
-				if (EncoderRot < (setHeight - 1) * rotPerLevel){
-					m_liftMotor.Set(1);
-				}
-				else if (EncoderRot > (setHeight - 1) * rotPerLevel){
-					m_liftMotor.Set(-1);
-				}
+		if (!manualLift){
+			//if (EncoderRot < ((setHeight - 1) * rotPerLevel) - (rotPerLevel * 0.01) ){
+			if (EncoderRot < (heights[setHeight-1] * 0.99) ){
+				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 );
+				m_liftMotor.Set(1);
+				EncoderDir = 1;
 			}
-			if (EncoderRot == (setHeight - 1) * rotPerLevel){
-				autoLift = 0;
+			//else if (EncoderRot > ((setHeight - 1) * rotPerLevel + (rotPerLevel * 0.01))){
+			else if (EncoderRot > (heights[setHeight-1] * 1.01) ){
+				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 );
+				m_liftMotor.Set(-1);
+				EncoderDir = -1;
+			}
+			//else if (EncoderRot == (setHeight - 1)* rotPerLevel){
+			else {
 				m_liftMotor.Set(0);
+				manualLift = true;
+				EncoderDir = 0;
 			}
 		}
-
-		/* ---------- SMART DASHBOARD ---------- */
 
 
 		/* ---------- SMART DASHBOARD ---------- */
