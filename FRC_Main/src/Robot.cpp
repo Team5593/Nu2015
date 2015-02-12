@@ -59,7 +59,12 @@ private:
 		float speed 	= 1-(Xcont.GetRawAxis(3)/2);		// Speed is inverted, then set to XboxController (Axis 3 right trigger), then divided by 2
 		bool manualLift  = true;
 		int setHeight = 0;
-		double rotPerLevel = 1;
+		/* --------- ENCODER VALUES ---------- */
+		bool direction = lift_encoder.GetDirection();
+		int EncoderDir;
+		double EncoderRot;
+
+		EncoderRot = lift_encoder.GetDistance();
 
 
 		if (stick.GetRawButton(6)){
@@ -104,60 +109,47 @@ private:
 			m_liftMotor.Set(1);
 			manualLift = true;
 		}
+
+		else if (stick.GetRawButton(2)){
+			m_liftMotor.Set(-1);
+			manualLift = true;
+		} else {
+			m_liftMotor.Set(0);
+		}
+
+		if (stick.GetRawButton(4)){
+			m_grabMotor.Set(1);
+		}
+		else if (stick.GetRawButton(5)){
+			m_grabMotor.Set(-1);
+		}
 		else{
-			if (stick.GetRawButton(2)){
-				m_liftMotor.Set(-1);
-				manualLift = true;
-			}
-			else
-				m_liftMotor.Set(0);
-		};
+			m_grabMotor.Set(0);
+		}
 
-		if (stick.GetRawButton(4))
-			m_grabMotor.Set(1.0);
-		else{
-			if (stick.GetRawButton(5))
-				m_grabMotor.Set(-1);
-			else
-				m_grabMotor.Set(0);
-		};
-
-		/* --------- ENCODER VALUES ---------- */
-		bool direction = lift_encoder.GetDirection();
-		float EncoderDir;
-		double EncoderRot;
-
-		/*if(direction==1)
-			EncoderDir = 1;
-		else
-			EncoderDir = -1;
-		*/
-		EncoderRot = lift_encoder.GetDistance();
 
 		if (stick.GetRawButton(11))
 			lift_encoder.Reset();
 
 		/* ---------- AUTO LIFT --------- */
 
-		double heights[] = {1000.0,2000.0,3000.0,4000.0};
+		double heights[] = {1000.0,2000.0,3000.0,4000.0};		//Change these for levels of totes
+																//no math just magic numbers!
 
 		if (!manualLift){
-			//if (EncoderRot < ((setHeight - 1) * rotPerLevel) - (rotPerLevel * 0.01) ){
 			if (EncoderRot < (heights[setHeight-1] * 0.99) ){
-				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 );
+				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 ); //Going Up
 				m_liftMotor.Set(1);
 				EncoderDir = 1;
 			}
-			//else if (EncoderRot > ((setHeight - 1) * rotPerLevel + (rotPerLevel * 0.01))){
 			else if (EncoderRot > (heights[setHeight-1] * 1.01) ){
-				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 );
+				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 1.01 ); //Going Down
 				m_liftMotor.Set(-1);
 				EncoderDir = -1;
 			}
-			//else if (EncoderRot == (setHeight - 1)* rotPerLevel){
 			else {
 				m_liftMotor.Set(0);
-				manualLift = true;
+				manualLift = true;				//You have reached your destination!
 				EncoderDir = 0;
 			}
 		}
@@ -167,10 +159,9 @@ private:
 		SmartDashboard::PutNumber("LeftOut", leftOut);					// Print leftOut
 		SmartDashboard::PutNumber("RightOut", rightOut);				// Print rightOut
 		SmartDashboard::PutNumber("EncoderDirection", EncoderDir);		// Print encoder direction
-		SmartDashboard::PutNumber("EncoderRotations", EncoderRot);		//Print encoder distance
-		SmartDashboard::PutNumber("autoLift", autoLift);				//Print autoLift
-		SmartDashboard::PutNumber("setHeight", setHeight);				//Print setHeight
-		SmartDashboard::PutNumber("rotPerLevel", rotPerLevel);			//Print rotPerLevel
+		SmartDashboard::PutNumber("EncoderRotations", EncoderRot);		// Print encoder distance
+		SmartDashboard::PutNumber("manualLift", manualLift);			// Print manualLift
+		SmartDashboard::PutNumber("setHeight", setHeight);				// Print setHeight
 
 	}
 
