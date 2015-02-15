@@ -10,6 +10,7 @@ class Robot: public IterativeRobot
 	Talon m_grabMotor;
 	LiveWindow *lw;
 	Encoder lift_encoder;
+	DigitalInput di;
 
 public:
 	Robot() :
@@ -28,7 +29,7 @@ private:
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
-
+di.
 		SmartDashboard::init();
 	}
 
