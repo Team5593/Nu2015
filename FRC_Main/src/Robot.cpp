@@ -23,6 +23,7 @@ class Robot: public IterativeRobot
 	Talon m_grabMotor;
 	LiveWindow *lw;
 	Encoder lift_encoder;
+	DigitalInput limitSwitch;
 	BuiltInAccelerometer accel;
 
 public:
@@ -34,6 +35,7 @@ public:
 		m_grabMotor(3),
 		lw(NULL),
 		lift_encoder(0,1),
+		limitSwitch(2),
 		accel(0)
 	{
 		myRobot.SetExpiration(0.1);
@@ -43,7 +45,7 @@ private:
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
-
+		accel.SetRange(Accelerometer::Range::kRange_8G);	// Set accel range to 8G's
 		SmartDashboard::init();
 	}
 
@@ -72,18 +74,22 @@ private:
 
 	void TeleopInit()
 	{
-		//Dashboard Init
 		SmartDashboard::init();
+		// Controller Output
 		SmartDashboard::PutNumber("Axis Left", Xcont.GetRawAxis(1));	// Print Left Axis
 		SmartDashboard::PutNumber("Axis Right", Xcont.GetRawAxis(5));	// Print Right Axis
+		// Motor output
 		SmartDashboard::PutNumber("LeftOut", 0);						// Print leftOut
 		SmartDashboard::PutNumber("RightOut", 0);						// Print rightOut
+		// Encoder
 		SmartDashboard::PutNumber("EncoderDirection", 0);				// Print encoder direction
 		SmartDashboard::PutNumber("EncoderRotations", 0);				// Print encoder rotations
+		// Accelerometer
 		SmartDashboard::PutNumber("Get X", 0);
 		SmartDashboard::PutNumber("Get Y", 0);
 		SmartDashboard::PutNumber("Get Z", 0);
 
+		SmartDashboard::PutBoolean("Switch", 0);
 	}
 
 	void TeleopPeriodic()
@@ -195,9 +201,12 @@ private:
 		SmartDashboard::PutNumber("EncoderRotations", EncoderRot);		// Print encoder distance
 		SmartDashboard::PutNumber("manualLift", manualLift);			// Print manualLift
 		SmartDashboard::PutNumber("setHeight", setHeight);				// Print setHeight
+		// Accelerometer Raw Input
 		SmartDashboard::PutNumber("Get X", accel.GetX());
 		SmartDashboard::PutNumber("Get Y", accel.GetY());
 		SmartDashboard::PutNumber("Get Z", accel.GetZ());
+		bool di = limitSwitch.CheckAnalogInput(2);
+		SmartDashboard::PutBoolean("Switch", di);
 	}
 
 	void TestPeriodic()
