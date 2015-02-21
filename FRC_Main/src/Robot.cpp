@@ -23,12 +23,11 @@ class Robot: public IterativeRobot
 	Talon m_grabMotor;
 	LiveWindow *lw;
 	Encoder lift_encoder;
-<<<<<<< HEAD
 	DigitalInput di;
-=======
+
 	DigitalInput limitSwitch;
 	BuiltInAccelerometer accel;
->>>>>>> origin/master
+
 
 public:
 	Robot() :
@@ -49,11 +48,11 @@ private:
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
-<<<<<<< HEAD
+
 di.
-=======
+
 		accel.SetRange(Accelerometer::Range::kRange_8G);	// Set accel range to 8G's
->>>>>>> origin/master
+
 		SmartDashboard::init();
 	}
 
