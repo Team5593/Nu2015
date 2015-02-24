@@ -113,6 +113,7 @@ private:
 			SmartDashboard::PutNumber("Get Raw Y", accel.GetY());
 			SmartDashboard::PutNumber("Deadzone Calculated", acc);
 			SmartDashboard::PutNumber("Time Elapsed", secCount);
+			SmartDashboard::PutNumber("Speed", speed);
 
 		}
 	}
