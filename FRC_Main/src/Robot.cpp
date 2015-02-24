@@ -101,10 +101,11 @@ private:
 			}
 			else{
 				acc = accel.GetY();
+				speed	 = speed+(acc*0.002);
+				distance = distance+(speed*0.002);
 			}
 
-			speed	 = speed+(acc*0.002);
-			distance = distance+(speed*0.002);
+
 
 			timeStart = timeNow;
 			secCount++;
