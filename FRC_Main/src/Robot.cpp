@@ -1,6 +1,6 @@
 #include "WPILib.h"
-//#include "time.h"
 
+// Joy Stick Global Buttons
 #define JoyDownButton 2
 #define JoyUpButton 3
 #define JoyLeftButton 4
@@ -27,8 +27,9 @@ class Robot: public IterativeRobot
 	DigitalInput limitSwitch;		//Limit switch for lifting
 	BuiltInAccelerometer accel;		//Built In Accelerometer
 
-	double timeStart;
-	double secCount;
+	//Variables
+	double timeStart = 0;
+	double secCount = 0;
 	double speed = 0;
 	double distance = 0;
 	double acc = 0;
@@ -57,72 +58,40 @@ private:
 	void AutonomousInit()
 	{
 		timeStart = timer.GetFPGATimestamp();
-
-
-		/*
-		Starting behind tote
-
-		Grab tote, waiting until limit switch
-
-		Lift tote to level 2, detected by encoder
-
-		!!!Get to Auto zone!!! Difficult due to no encoders atm.
-		Will probably have to be timed - Means a lot of testing trial and error(Especially on the day)
-	 	Alternative:
-		Use
-
-		Stay in the auto zone
-		*/
 	}
 
 	void AutonomousPeriodic()
 	{
-		/*
-		double timeStart = clock_t();
-
-
-		double time_end = clock_t();
-
-		double time_elapsed = timeStart - time_end;
-		this->
-		sleep(0.002-time_elapsed);
-
-		SmartDashboard::PutNumber("Time Elapsed", time_elapsed);
-		*/
-
+		/* ---------- ACCELEROMETER ---------- */
 		double timeNow = timer.GetFPGATimestamp();
-		double time_elapsed = timeNow - timeStart;
+		double timeElapsed = timeNow - timeStart;
 
-
-		if(time_elapsed > 0.002) {
-			//Deadzones and setting Accelerometer value
+		if(timeElapsed > 0.002) {
+			//Deadzones and setting Accelerometer value (May not be needed!)
 			if (accel.GetY() < 0.03 or accel.GetY() < -0.03){
 				acc = 0;
 			}
 			else{
-				acc = accel.GetY();
-				speed	 = speed+(acc*0.002);
-				distance = distance+(speed*0.002);
+				acc		 = accel.GetY();			//Get Acceleration
+				speed	 = speed+(acc*0.002);		//Change speed
+				distance = distance+(speed*0.002);	//Use speed to change distance
 			}
-
-
 
 			timeStart = timeNow;
 			secCount++;
-			SmartDashboard::PutNumber("Distance", distance);
-			SmartDashboard::PutNumber("Get Raw Y", accel.GetY());
-			SmartDashboard::PutNumber("Deadzone Calculated", acc);
-			SmartDashboard::PutNumber("Time Elapsed", secCount);
-			SmartDashboard::PutNumber("Speed", speed);
-
 		}
+
+		//Smart Dashboard
+		SmartDashboard::PutNumber("Distance Traveled", distance);
+		SmartDashboard::PutNumber("Get Raw Y", accel.GetY());
+		SmartDashboard::PutNumber("Deadzone Calculated", acc);
+		SmartDashboard::PutNumber("Time Elapsed", secCount);
+		SmartDashboard::PutNumber("Speed", speed);					//"Gotta go fast!"
 	}
 
 	void TeleopInit()
 	{
-		SmartDashboard::init();
-
-
+		/* ---------- SMARTDASHBOARD INIT ---------- */
 		// Controller Output
 		SmartDashboard::PutNumber("Axis Left", Xcont.GetRawAxis(1));	//Print Left Axis
 		SmartDashboard::PutNumber("Axis Right", Xcont.GetRawAxis(5));	//Print Right Axis
@@ -133,9 +102,8 @@ private:
 		SmartDashboard::PutNumber("EncoderDirection", 0);				//Print encoder direction
 		SmartDashboard::PutNumber("EncoderRotations", 0);				//Print encoder rotations
 		// Accelerometer
-		SmartDashboard::PutNumber("Get X", 0);							//Accelerometer X
-		SmartDashboard::PutNumber("Get Y", 0);							//Accelerometer Y
-		SmartDashboard::PutNumber("Get Z", 0);							//Accelerometer Z
+		SmartDashboard::PutNumber("Get X", 0);							//X Forward
+		SmartDashboard::PutNumber("Get Y", 0);							//Y	Sideward
 
 		SmartDashboard::PutBoolean("Switch", 0);
 	}
@@ -167,13 +135,12 @@ private:
 		}
 
 		/* ---------- DRIVE OUTPUT ---------- */
-		leftOut 	= leftIn*speed;								//L Speed
-		rightOut 	= rightIn*speed;							//R Speed
+		leftOut 	= leftIn*speed;								//L with speed
+		rightOut 	= rightIn*speed;							//R with speed
 
-		myRobot.TankDrive(leftOut,rightOut); 					//Drive, accounts for speed.
+		myRobot.TankDrive(leftOut,rightOut); 					//Drive
 
 		/* --------- ENCODER VALUES ---------- */
-		//bool direction = lift_encoder.GetDirection(); //Is this even needed?
 		int EncoderDir;
 		double EncoderRot;
 
@@ -226,12 +193,12 @@ private:
 
 		/* ---------- AUTO LIFT ---------- */
 		if (!manualLift){
-			if (EncoderRot < (heights[setHeight-1] * 0.99) ){
+			if (EncoderRot < (heights[setHeight-1] * 0.99)){
 				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 0.99 ); 	//Going Up. *Elevator Music*
 				m_liftMotor.Set(1);
 				EncoderDir = 1;
 			}
-			else if (EncoderRot > (heights[setHeight-1] * 1.01) ){
+			else if (EncoderRot > (heights[setHeight-1] * 1.01)){
 				SmartDashboard::PutNumber("EncoderTarget",heights[setHeight-1] * 1.01 ); 	//Going Down
 				m_liftMotor.Set(-1);
 				EncoderDir = -1;
@@ -258,9 +225,8 @@ private:
 		SmartDashboard::PutNumber("manualLift", manualLift);			//Print manualLift
 		SmartDashboard::PutNumber("setHeight", setHeight);				//Print setHeight
 		// Accelerometer Raw Input
-		SmartDashboard::PutNumber("Get Raw X", accel.GetX());
-		SmartDashboard::PutNumber("Get Raw Y", accel.GetY());
-		SmartDashboard::PutNumber("Get Raw Z", accel.GetZ());
+		SmartDashboard::PutNumber("Get Raw X", accel.GetX());			//Print X
+		SmartDashboard::PutNumber("Get Raw Y", accel.GetY());			//Print Y
 	}
 
 	void TestPeriodic()
