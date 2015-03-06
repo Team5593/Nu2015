@@ -13,7 +13,6 @@
 
 #define ResetEncoderButton 11
 
-
 class Robot: public IterativeRobot
 {
 	Timer timer;
@@ -25,6 +24,7 @@ class Robot: public IterativeRobot
 	LiveWindow *lw;					//Live Window
 	Encoder lift_encoder;			//Encoder for Lifting
 	DigitalInput limitSwitch;		//Limit switch for lifting
+	Gyro gyro;
 	BuiltInAccelerometer accel;		//Built In Accelerometer
 
 	//Variables
@@ -43,7 +43,8 @@ public:
 		m_grabMotor(3),
 		lw(NULL),
 		lift_encoder(0,1),
-		limitSwitch(2)
+		limitSwitch(2),
+		gyro(2)
 	{
 		myRobot.SetExpiration(0.1);
 	}
@@ -53,11 +54,14 @@ private:
 	{
 		lw = LiveWindow::GetInstance();
 		SmartDashboard::init();
+
 	}
 
 	void AutonomousInit()
 	{
-		timeStart = timer.GetFPGATimestamp();
+		timeStart = timer.GetFPGATimestamp();		// Timer Start
+		SmartDashboard::PutNumber("Gyro", 0);		// Init Gyro SmartDashboard
+		gyro.InitGyro();
 	}
 
 	void AutonomousPeriodic()
@@ -68,12 +72,12 @@ private:
 
 		if(timeElapsed > 0.002) {
 			//Deadzones and setting Accelerometer value (May not be needed!)
-			if (accel.GetY() < 0.03 or accel.GetY() < -0.03){
+			if (accel.GetY() < 0.02 or accel.GetY() < -0.02){
 				acc = 0;
 			}
 			else{
 				acc		 = accel.GetY();			//Get Acceleration
-				speed	 = speed+(acc*0.002);		//Change speed
+				speed	 += (acc*0.002);			//Change speed
 				distance = distance+(speed*0.002);	//Use speed to change distance
 			}
 
@@ -81,20 +85,26 @@ private:
 			secCount++;
 		}
 
+		float gyroAngle = gyro.GetAngle();
+
+
+		/* ---------- COORDINATES ---------- */
+
 		//Smart Dashboard
+		SmartDashboard::PutNumber("Gyro", gyroAngle);
 		SmartDashboard::PutNumber("Distance Traveled", distance);
 		SmartDashboard::PutNumber("Get Raw Y", accel.GetY());
 		SmartDashboard::PutNumber("Deadzone Calculated", acc);
 		SmartDashboard::PutNumber("Time Elapsed", secCount);
-		SmartDashboard::PutNumber("Speed", speed);					//"Gotta go fast!"
+		SmartDashboard::PutNumber("Speed", speed);						//"Gotta go fast!"
 	}
 
 	void TeleopInit()
 	{
 		/* ---------- SMARTDASHBOARD INIT ---------- */
 		// Controller Output
-		SmartDashboard::PutNumber("Axis Left", Xcont.GetRawAxis(1));	//Print Left Axis
-		SmartDashboard::PutNumber("Axis Right", Xcont.GetRawAxis(5));	//Print Right Axis
+		SmartDashboard::PutNumber("Xbox Left", Xcont.GetRawAxis(1));	//Print Left Axis
+		SmartDashboard::PutNumber("Xbox Right", Xcont.GetRawAxis(5));	//Print Right Axis
 		// Motor output
 		SmartDashboard::PutNumber("LeftOut", 0);						//Print leftOut
 		SmartDashboard::PutNumber("RightOut", 0);						//Print rightOut
