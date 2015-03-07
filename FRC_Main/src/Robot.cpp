@@ -44,7 +44,7 @@ public:
 		lw(NULL),
 		lift_encoder(0,1),
 		limitSwitch(2),
-		gyro(2)
+		gyro(0)
 	{
 		myRobot.SetExpiration(0.1);
 	}
