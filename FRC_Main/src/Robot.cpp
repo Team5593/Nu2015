@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include <cmath>
 
+#define PI 3.141592653589793
 // Co-Driver Joy Stick Global Buttons
 #define JoyDownButton 2
 #define JoyUpButton 3
@@ -34,13 +35,13 @@ class Robot: public IterativeRobot
 	double secCount = 0;
 	// Accelerometer Values and Outputs
 	double speed;
-	double distance ;
+	double distance;
 	double acc;
 	//Gyroscope Output
 	float gyroAngle;
 	// Coordinates for Auto-Mode
-	double xGoTo[] = {0.0,5.0};			// The X coordinate that the robot is aiming for.
-	double yGoTo[] = {0.0,7.5};			// The Y...
+	double xGoTo[2] = {0.0,5.0};		// The X coordinate that the robot is aiming for.
+	double yGoTo[2] = {0.0,5.0};		// The Y...
 	double xSquared;					// Difference Squared
 	double ySquared;					// ...
 	double autoDistance;				// Distance needed to travel
@@ -94,13 +95,17 @@ private:
 				distance = distance+(speed*timeElapsed);	// distance = distance + speed x time
 			}
 
-			// x² + y² = D²
-			xSquared = pow(xGoTo[0]-xGoTo[1], 2);				// Difference Squared
-			ySquared = pow(yGoTo[0]-yGoTo[1], 2);				// ...
+			// x² + y² = D², Using pythagoras theorem to find the distance.
+			xSquared = pow(xGoTo[1]-xGoTo[0], 2);				// Difference Squared
+			ySquared = pow(yGoTo[1]-yGoTo[0], 2);				// ...
 			autoDistance = sqrt((xSquared + ySquared));			// Distance from robot to new x and y
 
 			// Calculating Angle from point "A" to point "B"
-			autoAngle = atan((xGoTo[0]-xGoTo[1])/(yGoTo[0]-yGoTo[1])); //Useing trig the robot finds the angle it need to head in
+			autoAngle = (atan((xGoTo[1]-xGoTo[0])/(yGoTo[1]-yGoTo[0]))*180)/PI; 	//Useing trig the robot finds the angle it need to head in
+
+			while(autoDistance != distance){
+				break;
+			}
 
 			timeStart = timeNow;
 			secCount++;
@@ -109,6 +114,8 @@ private:
 		/* ---------- COORDINATES ---------- */
 
 		//Smart Dashboard
+		SmartDashboard::PutNumber("Auto Angle", autoAngle);
+		SmartDashboard::PutNumber("Auto Distance", autoDistance);
 		SmartDashboard::PutNumber("Gyro", gyroAngle);
 		SmartDashboard::PutNumber("Distance Traveled", distance);
 		SmartDashboard::PutNumber("Acceleration", acc);
